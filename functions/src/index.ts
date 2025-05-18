@@ -16,14 +16,15 @@ export const notifyAvailablePlayerIndividual = functions.https.onRequest(async (
     return;
   }
 
-  if (!req.body || typeof req.body !== 'object' || typeof req.body.name !== 'string' || req.body.name.trim() === '') {
-     console.error('Solicitud inválida: falta o es inválido el campo "name" en el cuerpo.');
-     res.status(400).json({ error: 'Missing or invalid "name" in request body. Ensure Content-Type is application/json.' });
+  if (!req.body || typeof req.body !== 'object' || typeof req.body.name !== 'string' || req.body.name.trim() === '' || typeof req.body.correo !== 'string' || req.body.correo.trim() === '') {
+     console.error('Solicitud inválida: falta o es inválido el campo "name" o "correo" en el cuerpo.');
+     res.status(400).json({ error: 'Missing or invalid "name" or "correo" in request body. Ensure Content-Type is application/json.' });
      return;
   }
 
   const playerName = req.body.name.trim(); // Usar trim() para limpiar espacios
-  console.log(`notifyAvailablePlayerIndividual invoked for: ${playerName}`);
+  const playerCorreo = req.body.correo.trim();
+  console.log(`notifyAvailablePlayerIndividual invoked for: ${playerName} (${playerCorreo})`);
 
   try {
     const usersSnap = await admin.database().ref('/usuarios').once('value');
@@ -69,6 +70,7 @@ export const notifyAvailablePlayerIndividual = functions.https.onRequest(async (
            data: {
              title: '¡Jugador Disponible!',
              body: `${playerName} está esperando para jugar.`,
+             correo: playerCorreo,
            },
        });
 
